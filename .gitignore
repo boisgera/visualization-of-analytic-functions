@@ -1,9 +1,12 @@
 # Jupyter
 .ipynb_checkpoints
 
+# Marimo
+__marimo__
+
 # Misc.
 output
+movie_frames
 
-# pixi environments
-.pixi
-*.egg-info
+# venv
+.venv
