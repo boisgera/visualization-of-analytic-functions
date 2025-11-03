@@ -1,6 +1,8 @@
-# Visualization of Holomorphic Functions
+# Visualization of holomorphic functions
 
-## Getting Started
+![Domain coloring](/media/image.png)
+
+## Getting started
 
 Install [uv], then execute the command:
 
