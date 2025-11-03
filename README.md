@@ -1,6 +1,6 @@
 # Visualization of holomorphic functions
 
-![Domain coloring](/media/image.png)
+![Domain coloring](/media/domain-coloring.png)
 
 ## Getting started
 
