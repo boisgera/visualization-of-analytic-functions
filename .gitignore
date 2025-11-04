@@ -8,5 +8,9 @@ __marimo__
 output
 movie_frames
 
+# Generated images
+*.png
+*.gif
+
 # venv
 .venv
