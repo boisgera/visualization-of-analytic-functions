@@ -71,6 +71,9 @@ def _(np, plt):
                 result = result[0]
             return result
 
+        def transform(self, f):
+            return Path([lambda t, fn=fn: f(fn(t)) for fn in self._fns])
+    
         def integral(self, f, n=1000):
             t = np.linspace(0.0, 1.0, n, endpoint=False)
             s = 0.0j
@@ -82,17 +85,20 @@ def _(np, plt):
                 s += ds
             return s
 
-        def plot(self, n=1000, *args, **kwargs):
+        # TODO: keep the same (current) color. Try "phantom" call?
+        def plot(self, n=1000, **kwargs):
             t = np.linspace(0.0, 1.0, n)
             dt = 1.0 / n
+            kwargs.setdefault("color", "k")
+
             for fn in self._fns:
                 vals = fn(t)
-                line = plt.plot(vals.real, vals.imag, *args, **kwargs)
-                current_color = line[0].get_color()
+                line = plt.plot(vals.real, vals.imag, **kwargs)
+                color = kwargs.get("color") or line[0].get_color()
                 z_tangent = (fn(0.5 + dt / 2) - fn(0.5 - dt / 2)) / dt
                 angle_deg = np.degrees(
                     np.angle(z_tangent)
-                )  # Get direction in degrees
+                )  
                 plt.plot(
                     fn(0.5).real,
                     fn(0.5).imag,
@@ -102,7 +108,7 @@ def _(np, plt):
                         angle_deg - 90,
                     ),  # Triangle marker rotated to tangent direction
                     markersize=10,
-                    color=current_color,
+                    color=color,
                 )
 
         def delta_arg(path, a=0.0, n=1000):
@@ -129,7 +135,7 @@ def _(np, plt):
             return (1 - t) * z0 + t * z1
 
         return Path(_gamma)
-    return circle, line
+    return Path, circle, line
 
 
 @app.cell
@@ -270,6 +276,63 @@ def _(square):
 @app.cell
 def _(square):
     square.winding_number(a=1.05 + 0.95j)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ## Grids
+    """)
+    return
+
+
+@app.cell
+def _(Path, circle, exp, line):
+    def grid(xs, ys):
+        paths = []
+        x_min, x_max = (xs[0], xs[-1])
+        y_min, y_max = (ys[0], ys[-1])
+        for x in xs:
+            paths.append(line(x + 1j * y_min, x + 1j * y_max))
+        for y in ys:
+            paths.append(line(x_min + 1j * y, x_max + 1j * y))
+        return Path(paths)
+
+
+    def polar_grid(rs, thetas, c=0.0 + 0j):
+        paths = []
+        r_min, r_max = (rs[0], rs[-1])
+        theta_min, theta_max = (thetas[0], thetas[-1])
+        for r in rs:
+            paths.append(circle(r=r, arg0=theta_min, arg1=theta_max, c=c))
+        for _theta in thetas:
+            paths.append(
+                line(r_min * exp(1j * _theta) + c, r_max * exp(1j * _theta) + c)
+            )
+        return Path(paths)
+    return (grid,)
+
+
+@app.cell
+def _(grid, np, plt):
+    def _():
+        rg = grid(xs=np.linspace(0.0, 1.0, 6), ys=np.linspace(0.0, 1, 6))
+        pg = rg.transform(lambda z : 1 / (z + 1))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4.5))
+        plt.sca(ax1)
+        rg.plot()
+        ax1.axis("equal")
+        plt.sca(ax2)
+        pg.plot()
+        ax2.axis("equal")
+        return fig
+    _()
+    return
+
+
+@app.cell
+def _():
     return
 
 
