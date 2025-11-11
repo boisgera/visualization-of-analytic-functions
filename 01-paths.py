@@ -33,7 +33,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(np, plt):
     class Path:
         def __init__(self, path):
@@ -49,7 +49,7 @@ def _(np, plt):
         def __or__(self, other):
             return Path([self, other])
 
-        def __neg__(self):
+        def reverse(self):
             return Path([lambda t: fn(1.0 - t) for fn in reversed(self._fns)])
 
         def __call__(self, t):
@@ -73,7 +73,7 @@ def _(np, plt):
 
         def transform(self, f):
             return Path([lambda t, fn=fn: f(fn(t)) for fn in self._fns])
-    
+
         def integral(self, f, n=1000):
             t = np.linspace(0.0, 1.0, n, endpoint=False)
             s = 0.0j
@@ -194,7 +194,7 @@ def _(circle):
 
 @app.cell
 def _(circle):
-    -circle(c=0.5j, r=0.25)
+    circle(c=0.5j, r=0.25).reverse()
     return
 
 
@@ -205,7 +205,7 @@ def _(circle, line, np, plt):
         line(0.0, np.exp(1j * theta))
         | circle(arg0=theta, arg1=2 * np.pi - theta)
         | line(np.exp(-1j * theta), 0.0)
-        | -circle(c=0.5j, r=0.25)
+        | circle(c=0.5j, r=0.25).reverse()
     )
     pac_man.plot()
     points = [1.0 + 0.0j, -0.5 + 0.0j, 0.0 + 0.5j]
