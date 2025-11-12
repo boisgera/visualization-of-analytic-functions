@@ -11,6 +11,13 @@ def _():
 
 
 @app.cell
+def _():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    return np, plt
+
+
+@app.cell
 def _(mo):
     mo.md(r"""
     # Potentials
@@ -122,8 +129,91 @@ def _(mo):
 
 
 @app.cell
-def _():
-    # TODO: contour, streamline, etc. 
+def _(np, plt):
+    def display(f, domain = [-4, 4, -3, 3]):
+        x_min, x_max, y_min, y_max = domain
+        dx = x_max - x_min
+        dy = y_max - y_min
+        wh_ratio = dx / dy
+        n = 100
+        xs = np.linspace(x_min, x_max, n)
+        ys = np.linspace(y_min, y_max, int(n / wh_ratio))
+        X, Y = np.meshgrid(xs, ys)
+        f_XY = f(X + 1j * Y)
+        phi_XY = f_XY.real
+        psi_XY = f_XY.imag
+
+
+
+        fig, ax = plt.subplots()
+        contours = plt.contour(X, Y, phi_XY, colors="k", linestyles="-")
+        plt.clabel(contours, inline=True, fontsize=10)
+
+        if False:
+            n = 10
+            xs = np.linspace(x_min, x_max, n)
+            ys = np.linspace(y_min, y_max, int(n / wh_ratio))
+            X, Y = np.meshgrid(xs, ys)
+            f_XY = f(X + 1j * Y)
+            phi_XY = f_XY.real
+            psi_XY = f_XY.imag
+            h = 1e-12
+            fd_XY = (f((X + h) + 1j * Y) - f(X + 1j * Y)) / h
+            nabla_phi_XY_x = fd_XY.real
+            nabla_phi_XY_y = -fd_XY.imag
+            plt.quiver(X, Y, nabla_phi_XY_x, nabla_phi_XY_y)
+            #plt.colorbar()
+            #plt.grid(True)
+
+        phi_XY = f_XY.real
+        psi_XY = f_XY.imag
+        h = 1e-12
+        fd_XY = (f((X + h) + 1j * Y) - f(X + 1j * Y)) / h
+        nabla_phi_XY_x = fd_XY.real
+        nabla_phi_XY_y = -fd_XY.imag
+        plt.streamplot(X, Y, nabla_phi_XY_x, nabla_phi_XY_y)
+        ax.axis("equal")
+        return fig
+    return (display,)
+
+
+@app.cell
+def _(display):
+    display(
+        lambda z: z,
+    )
+    return
+
+
+@app.cell
+def _(display):
+    display(
+      lambda z: z*z,
+    )
+    return
+
+
+@app.cell
+def _(display, np):
+    display(
+      lambda z: np.exp(z),
+    )
+    return
+
+
+@app.cell
+def _(display, np):
+    display(
+      lambda z: np.log(z),
+    )
+    return
+
+
+@app.cell
+def _(display):
+    display(
+      lambda z: 0.5 * (z + 1 / z),
+    )
     return
 
 
